@@ -4,6 +4,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+$selfScriptPath = $PSCommandPath
 
 $requiredFiles = @(
     "README.md",
@@ -115,7 +116,7 @@ if ($useFallback) {
             $_.FullName -notlike "*Project-Dev*" -and
             $_.FullName -notlike "*Project-Info*" -and
             $_.FullName -notlike "*.git*" -and
-            $_.FullName -notlike "*scripts\\repo-readiness-check.ps1"
+            $_.FullName -ne $selfScriptPath
         } |
         Select-String -SimpleMatch -Pattern "TODO", "[Draft", "[In Progress"
 
