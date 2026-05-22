@@ -1,0 +1,47 @@
+# Portfolio-local reference material
+Project-Dev/
+Project-Info/
+PROJECT-GITHUB-PLAN.md
+docs/COMPLETE-SELF-GUIDED-MANUAL.md
+docs/IMPLEMENTATION-NOTES.md
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+app/venv/
+
+# Runtime / local config
+.env
+.env.*
+!.env.example
+app/.env
+app/.env.*
+!app/.env.example
+*.log
+*.tmp
+*.bak
+
+# Secrets / certs / keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+
+# Local-only analysis or generated data
+downloads/
+artifacts/raw/
+evidence/raw/
+quarantine/

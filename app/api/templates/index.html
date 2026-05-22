@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SWB | Second-Workshop-Brain</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+    <div class="app-shell">
+        <div class="announcement-bar">
+            <div class="announcement-inner">
+                <span class="announcement-badge">SWB Ready</span>
+                <p>Second-Workshop-Brain im Docker-Docs-Look mit sicherem CRUD, Dark/Light-Mode und DevSecOps-Hardening.</p>
+                <a href="#securityGuide">Security Guide</a>
+            </div>
+        </div>
+
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark">swb</div>
+                <div>
+                    <p class="brand-title">Second-Workshop-Brain</p>
+                    <p class="brand-subtitle">Eigene Workshop-Datenbank fuer Fullstack, SaaS, Git, GitHub, Docker und Kubernetes</p>
+                </div>
+            </div>
+
+            <nav class="topnav" aria-label="Primary">
+                <button class="topnav-link is-active" type="button">Dashboard</button>
+                <button class="topnav-link" type="button">Workshops</button>
+                <button class="topnav-link" type="button">Playbooks</button>
+                <button class="topnav-link" type="button">Security</button>
+            </nav>
+
+            <div class="topbar-actions">
+                <label class="search-shell" for="globalSearch">
+                    <span>Suchen</span>
+                    <input id="globalSearch" type="search" placeholder="Workshop, Stack oder Thema">
+                </label>
+                <button id="themeToggle" class="icon-button" type="button">Light mode</button>
+                <button id="logoutButton" class="secondary-button" type="button" hidden>Abmelden</button>
+            </div>
+        </header>
+
+        <main class="layout">
+            <aside class="sidebar">
+                <button id="createWorkshopButton" class="primary-button button-block" type="button">Workshop anlegen</button>
+
+                <section class="panel intro-panel">
+                    <p class="panel-kicker">Leitfaden</p>
+                    <h2>SWB organisiert dein Workshop-Wissen sauber.</h2>
+                    <p>Lege eigene Themen an, bearbeite sie zentral und halte Inhalte direkt GitHub- und teamfaehig.</p>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Kategorien</h2>
+                        <span id="categoryCount" class="panel-pill">0</span>
+                    </div>
+                    <div id="categoryFilters" class="category-filters"></div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Workshop-Bibliothek</h2>
+                        <span id="workshopCount" class="panel-pill">0</span>
+                    </div>
+                    <div id="sidebarWorkshopGroups" class="sidebar-groups"></div>
+                </section>
+            </aside>
+
+            <section class="content">
+                <section id="authGate" class="auth-gate">
+                    <div class="login-card">
+                        <p class="panel-kicker">Sicherer Zugriff</p>
+                        <h1>SWB Login</h1>
+                        <p>CRUD bleibt geschlossen, bis du dich als Admin anmeldest. So kann das Projekt auch oeffentlich auf GitHub liegen, ohne offene Schreibpfade.</p>
+
+                        <form id="loginForm" class="form-grid">
+                            <label class="field">
+                                <span>Benutzername</span>
+                                <input id="loginUsername" name="username" type="text" autocomplete="username" required>
+                            </label>
+                            <label class="field">
+                                <span>Passwort</span>
+                                <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+                            </label>
+                            <button class="primary-button" type="submit">Einloggen</button>
+                            <p id="loginMessage" class="form-message" aria-live="polite"></p>
+                        </form>
+                    </div>
+                </section>
+
+                <section id="dashboardView" class="dashboard-view" hidden>
+                    <div id="breadcrumbs" class="breadcrumbs">Home / Workshops</div>
+
+                    <header class="hero">
+                        <div class="hero-copy">
+                            <p class="panel-kicker">SWB Dashboard</p>
+                            <h1 id="heroTitle">Workshop auswaehlen</h1>
+                            <p id="heroSummary">Waehle links einen Workshop aus oder lege direkt einen neuen Themenbaustein an.</p>
+                        </div>
+                        <div class="hero-actions">
+                            <button id="editWorkshopButton" class="secondary-button" type="button">Bearbeiten</button>
+                            <button id="copyWorkshopButton" class="secondary-button" type="button">Briefing kopieren</button>
+                        </div>
+                    </header>
+
+                    <section class="stats-grid" aria-label="Dashboard Kennzahlen">
+                        <article class="stat-card">
+                            <span class="stat-label">Workshops</span>
+                            <strong id="statTotal" class="stat-value">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Kategorien</span>
+                            <strong id="statCategories" class="stat-value">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Published</span>
+                            <strong id="statPublished" class="stat-value">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">In Review</span>
+                            <strong id="statReview" class="stat-value">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Drafts</span>
+                            <strong id="statDraft" class="stat-value">0</strong>
+                        </article>
+                    </section>
+
+                    <article class="article-card">
+                        <section id="overviewSection" class="article-section">
+                            <div class="section-head">
+                                <h2>Zusammenfassung</h2>
+                                <div id="workshopBadges" class="badge-row"></div>
+                            </div>
+                            <p id="workshopSummary" class="lead-text">Noch kein Workshop ausgewaehlt.</p>
+                        </section>
+
+                        <section id="objectivesSection" class="article-section">
+                            <h2>Lernziele</h2>
+                            <ul id="objectivesList" class="list-grid"></ul>
+                        </section>
+
+                        <section id="descriptionSection" class="article-section">
+                            <h2>Beschreibung</h2>
+                            <p id="descriptionText" class="prose-text">Sobald ein Workshop aktiv ist, erscheinen hier die ausformulierten Inhalte.</p>
+                        </section>
+
+                        <section id="stackSection" class="article-section">
+                            <h2>Stack und Fokus</h2>
+                            <div id="stackChips" class="chip-row"></div>
+                        </section>
+
+                        <section id="deliverySection" class="article-section">
+                            <h2>Delivery Notes</h2>
+                            <ul id="deliveryList" class="meta-list"></ul>
+                        </section>
+                    </article>
+
+                    <p id="statusMessage" class="status-message" aria-live="polite"></p>
+                </section>
+            </section>
+
+            <aside class="toc-panel">
+                <section class="panel action-panel">
+                    <h2>Quick Actions</h2>
+                    <button id="quickCreateButton" class="primary-button button-block" type="button">Neuer Workshop</button>
+                    <button id="quickDeleteButton" class="danger-button button-block" type="button">Workshop loeschen</button>
+                </section>
+
+                <section class="panel">
+                    <h2>Inhaltsverzeichnis</h2>
+                    <nav class="toc-links" aria-label="Table of contents">
+                        <a href="#overviewSection">Zusammenfassung</a>
+                        <a href="#objectivesSection">Lernziele</a>
+                        <a href="#descriptionSection">Beschreibung</a>
+                        <a href="#stackSection">Stack und Fokus</a>
+                        <a href="#deliverySection">Delivery Notes</a>
+                    </nav>
+                </section>
+
+                <section id="securityGuide" class="panel">
+                    <h2>Security</h2>
+                    <ul class="meta-list">
+                        <li>Session-Login mit CSRF-Schutz fuer alle Schreiboperationen</li>
+                        <li>Security Header, Trusted Hosts und striktes CSP</li>
+                        <li>Rate Limits fuer Login und CRUD-Endpunkte</li>
+                        <li>Keine ungesicherten Inline-Skripte oder HTML-Injektion im Frontend</li>
+                    </ul>
+                </section>
+
+                <section class="panel">
+                    <h2>Workshop Meta</h2>
+                    <dl class="meta-grid">
+                        <div>
+                            <dt>Status</dt>
+                            <dd id="metaStatus">-</dd>
+                        </div>
+                        <div>
+                            <dt>Schwierigkeit</dt>
+                            <dd id="metaDifficulty">-</dd>
+                        </div>
+                        <div>
+                            <dt>Dauer</dt>
+                            <dd id="metaDuration">-</dd>
+                        </div>
+                        <div>
+                            <dt>Kategorie</dt>
+                            <dd id="metaCategory">-</dd>
+                        </div>
+                        <div>
+                            <dt>Slug</dt>
+                            <dd id="metaSlug">-</dd>
+                        </div>
+                        <div>
+                            <dt>Updated</dt>
+                            <dd id="metaUpdated">-</dd>
+                        </div>
+                    </dl>
+                </section>
+            </aside>
+        </main>
+    </div>
+
+    <dialog id="workshopDialog" class="modal">
+        <form id="workshopForm" class="modal-card" method="dialog">
+            <div class="modal-head">
+                <div>
+                    <p class="panel-kicker">Workshop Editor</p>
+                    <h2 id="dialogTitle">Workshop anlegen</h2>
+                </div>
+                <button id="closeDialogButton" class="icon-button" type="button">Schliessen</button>
+            </div>
+
+            <input id="workshopId" name="workshopId" type="hidden">
+
+            <div class="form-grid two-columns">
+                <label class="field">
+                    <span>Titel</span>
+                    <input id="workshopTitle" name="title" type="text" maxlength="120" required>
+                </label>
+
+                <label class="field">
+                    <span>Kategorie</span>
+                    <input id="workshopCategory" name="category" type="text" maxlength="40" placeholder="Docker" required>
+                </label>
+
+                <label class="field">
+                    <span>Status</span>
+                    <select id="workshopStatus" name="status">
+                        <option value="draft">Draft</option>
+                        <option value="review">Review</option>
+                        <option value="published">Published</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span>Schwierigkeit</span>
+                    <select id="workshopDifficulty" name="difficulty">
+                        <option value="fundamentals">Fundamentals</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span>Dauer in Stunden</span>
+                    <input id="workshopDuration" name="duration_hours" type="number" min="1" max="80" required>
+                </label>
+
+                <label class="field checkbox-field">
+                    <input id="workshopPublished" name="published" type="checkbox">
+                    <span>Fuer die Workshop-Library veroeffentlicht markieren</span>
+                </label>
+            </div>
+
+            <label class="field">
+                <span>Kurze Zusammenfassung</span>
+                <textarea id="workshopSummaryInput" name="summary" rows="3" maxlength="280" required></textarea>
+            </label>
+
+            <label class="field">
+                <span>Beschreibung</span>
+                <textarea id="workshopDescriptionInput" name="description" rows="6" maxlength="4000" required></textarea>
+            </label>
+
+            <div class="form-grid two-columns">
+                <label class="field">
+                    <span>Lernziele, ein Ziel pro Zeile</span>
+                    <textarea id="workshopObjectives" name="objectives" rows="6" required></textarea>
+                </label>
+
+                <label class="field">
+                    <span>Stack, komma-separiert</span>
+                    <textarea id="workshopStack" name="stack" rows="6" required></textarea>
+                </label>
+            </div>
+
+            <p id="formMessage" class="form-message" aria-live="polite"></p>
+
+            <div class="modal-actions">
+                <button class="primary-button" type="submit">Speichern</button>
+                <button id="cancelDialogButton" class="secondary-button" type="button">Abbrechen</button>
+            </div>
+        </form>
+    </dialog>
+</body>
+</html>
