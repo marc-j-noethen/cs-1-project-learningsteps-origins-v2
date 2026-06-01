@@ -18,9 +18,11 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 .venv/
+.venv-test/
 venv/
 env/
 app/venv/
+.codex-test-deps/
 
 # Runtime / local config
 .env

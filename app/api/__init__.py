@@ -1,13 +1,7 @@
-from .routers.journal_router import router as journal_router
-from .models.entry import Entry
-from .repositories.interface_repository import DatabaseInterface
-from .repositories.postgres_repository import PostgresDB
-from .services.entry_service import EntryService
+"""SWB API package.
 
-__all__ = [
-    'journal_router',
-    'Entry',
-    'DatabaseInterface',
-    'PostgresDB',
-    'EntryService'
-]
+This package intentionally keeps its top-level import side-effect free.
+Routers, services, and models are imported from their modules directly by
+the application entrypoint.
+"""
+
